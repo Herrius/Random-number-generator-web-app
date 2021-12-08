@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random number generator web app</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<style>
+    .dice {
+        display: flex;
+        padding: auto;
+        background-color: transparent;
+        align-items: center;
+        justify-content: center;
+        width: 5rem;
+        height: 5rem;
+        border-radius: 10%;
+        border-color: white;
+        border-width: 4px;
+    }
+
+    #result {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2rem;
+        font-size: 2rem;
+        color: white;
+    }
+</style>
+
+<body class="bg-blue-800">
+    <main class="container mx-auto min-h-screen flex flex-col justify-center content-center max-w-3xl space-y-4">
+        <h1 class="text-gray-50 text-6xl text-center">Generator roll dice D&D🐲</h1>
+        <form class="container flex flex-col space-y-4" id="form">
+            <label for="tiros" class="text-gray-50 text-xl">Which do dices go to roll? </label>
+            <input type="number" class="border-2 border-gray-800  text-xl div-1" id="tiros" name="tiros" required>
+            <label for="dado" class="text-gray-50 text-xl">What do dices go to use? </label>
+            <select name="dado" id="dado" class="border-2 border-gray-800  text-xl div-1" required>
+                <option value="d4">d4</option>
+                <option value="d6">d6</option>
+                <option value="d8">d8</option>
+                <option value="d10">d10</option>
+                <option value="d12">d12</option>
+                <option value="d20">d20</option>
+                <option value="d100">d100</option>
+            </select>
+            <input type="submit" id="submit" value="Good Lucky" class="w-48 mx-auto  text-xl">
+        </form>
+        <div id=result></div>
+    </main>
+</body>
+<script>
+    //   Pruebas de extracion de datos
+    //       document.getElementById("submit").onclick = function() {
+    //       let number = document.getElementsByName('tiros')[0].value
+    //       let dado = document.getElementsByName('dado')[0].value
+    //       makeRequest('test.php',userName);
+    //   };
+    let result = document.getElementById('result');
+    document.getElementById("submit").addEventListener('click', e => {
+        e.preventDefault();
+        let solicitud = document.getElementById('form')
+        makeRequest('fuction.php', solicitud)
+    })
+
+    function success(json) {
+        document.getElementById('result').innerHTML = "AFTER: " + JSON.stringify(json);
+        console.log("AFTER: " + JSON.stringify(json));
+        console.log(json.data);
+    } // ----------------------------------------------------------------------------------------------
+
+    function failure(error) {
+        document.getElementById('result').innerHTML = "ERROR: " + error;
+        console.log("ERROR: " + error);
+    } // ----------------------------------------------------------------------------------------------
+
+    function makeRequest(url, solicitud) {
+        let json = {
+            tiros: document.getElementById('tiros').value,
+            dado: document.getElementById('dado').value,
+        };
+        let data = new FormData(solicitud)
+        fetch(url, {
+            method: "POST",
+            body: JSON.stringify(json),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            return response.json();
+        }).then(data => {
+            if (result.childElementCount > 0) {
+                while (result.firstChild) {
+                    result.removeChild(result.firstChild);
+                }
+            }
+            for (tiro in data) {
+                // Controlando que json realmente tenga esa propiedad
+                let div = document.createElement('div');
+
+                div.classList.add("dice");
+                div.textContent = data[tiro];
+                // añade el elemento creado y su contenido al DOM
+                result.appendChild(div);
+            }
+        })
+    }
+    // Creacion del ajax con XMLHttpRequest
+    // function makeRequest(url, number, dado) {
+    //     httpRequest = new XMLHttpRequest();
+    //     if (!httpRequest) {
+    //         alert('Giving up :( Cannot create an XMLHTTP instance');
+    //         return false;
+    //     }
+    //     // Json
+    //     let data=`{'number':${number},'dado':${dado}}`;
+    //     httpRequest.open('POST', url);
+    //     httpRequest.onreadystatechange = alertContents;
+    //     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    //     httpRequest.send('data='+data);
+    // }
+    // function alertContents() {
+    //     if (httpRequest.readyState === XMLHttpRequest.DONE) {
+    //         if (httpRequest.status === 200) {
+    //             console.log(httpRequest.status);
+    //             console.log(httpRequest.responseText);
+    //             // var response = JSON.stringify(httpRequest.responseText);
+    //             // return alert(response.computedString);
+    //         } else {
+    //             return alert('There was a problem with the request.');
+    //         }
+    //     }
+    // }
+</script>
+
+</html>
